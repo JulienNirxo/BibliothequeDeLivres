@@ -10,25 +10,29 @@ class Program
     {
         while (true)
         {
-            Console.WriteLine("1. Ajouter un livre");
-            Console.WriteLine("2. Récupérer tous les livres");
-            Console.WriteLine("3. Supprimer un livre");
-            Console.WriteLine("4. Quitter");
+            Console.WriteLine("1. Récupérer tous les livres");
+            Console.WriteLine("2. Ajouter un livre");
+            Console.WriteLine("3. Modifier un livre");
+            Console.WriteLine("4. Supprimer un livre");
+            Console.WriteLine("5. Quitter");
             Console.Write("Choisissez une option: ");
             var choice = Console.ReadLine();
 
             switch (choice)
             {
                 case "1":
-                    AddBook();
-                    break;
-                case "2":
                     GetBooks();
                     break;
+                case "2":
+                    AddBook();
+                    break;
                 case "3":
-                    DeleteBooks();
+                    UpdateBooks();
                     break;
                 case "4":
+                    DeleteBooks();
+                    break;
+                case "5":
                     return;
                 default:
                     Console.WriteLine("Option invalide. Veuillez réessayer.");
@@ -80,6 +84,62 @@ class Program
                 }
             }
         }
+    }
+
+    static void UpdateBooks()
+    {
+        Console.Write("Id du livre: ");
+        var id = Console.ReadLine();
+        Console.WriteLine("Vous voulez changer quel élément ?");
+        Console.WriteLine("1. Nom du livre");
+        Console.WriteLine("2. Auteur");
+        Console.WriteLine("3. Description");
+        Console.WriteLine("4. Quitter");
+        Console.Write("Choisissez une option: ");
+        var choice = Console.ReadLine();
+
+        using (OracleConnection con = new OracleConnection(connectionString))
+        {
+            con.Open();
+            using (OracleCommand cmd = con.CreateCommand())
+            {
+
+                switch (choice)
+                {
+                    case "1":
+                        Console.Write("Modifier le nom: ");
+                        string name = Console.ReadLine();
+                        cmd.CommandText = "UPDATE Books set name = :name WHERE Id = :Id";
+                        cmd.Parameters.Add(new OracleParameter("name", name));
+                        cmd.Parameters.Add(new OracleParameter("Id", id));
+                        break;
+                    case "2":
+                        Console.Write("Modifier l'auteur: ");
+                        string author = Console.ReadLine();
+                        cmd.CommandText = "UPDATE Books set author = :author WHERE Id = :Id";
+                        cmd.Parameters.Add(new OracleParameter("author", author));
+                        cmd.Parameters.Add(new OracleParameter("Id", id));
+                        break;
+                    case "3":
+                        Console.Write("Modifier la description : ");
+                        string description = Console.ReadLine();
+                        cmd.CommandText = "UPDATE Books set description = :description WHERE Id = :Id";
+                        cmd.Parameters.Add(new OracleParameter("description", description));
+                        cmd.Parameters.Add(new OracleParameter("Id", id));
+
+                        break;
+                    case "4":
+                        return;
+                    default:
+                        Console.WriteLine("Option invalide. Veuillez réessayer.");
+                        break;
+                }
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+
+        Console.WriteLine("Livre modifié avec succès !");
     }
 
     static void DeleteBooks()
